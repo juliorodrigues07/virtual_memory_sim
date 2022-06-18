@@ -1,159 +1,248 @@
 #include "utilities.h"
 
-int tam_pag, tam_mem, numPaginas, leitura=0, escrita=0, pag=0;
-char *tipo, *caminho, line[100], tmpAddress[9];
+char *algorithm, *file_path;
+int page_size, mem_size, n_pages, used_pages=0;
 
-Pagina *first, *last;
-FILE *entrada;
+// Métricas
+int faults = 0, operations=0, reads=0, writes=0, hits=0, misses=0, writebacks=0;
+FILE *file;
+Page *first, *last;
 
-void Add_page(char value[9]) {
+void add_new_page(unsigned addr, char rw) {
 
-    Pagina *pag_atual = (Pagina *)malloc(sizeof(Pagina));
-	strcpy(pag_atual->address, value);
-	pag_atual->next = NULL;
+	Page *current = (Page *)malloc(sizeof(Page));
+	current->address = addr;
+    current->referenced = 1;
+	current->next = NULL;
 
-	if (pag == 0) {
-		first = pag_atual;
+    if (rw == write)
+        current->modified = 1;
+    else
+        current->modified = 0;
+
+	if (used_pages == 0){
+		first = current;
 		last = first;
 	} else {
-		last->next = pag_atual;
-		last = pag_atual;
+		last->next = current;
+		last = current;
 	}
-
-	if (pag < numPaginas)
-		pag++;
-
-	escrita++;
+	
+	if (used_pages < n_pages)
+		used_pages++;
 }
 
-void LRU(char value[9]) {
+void lru(unsigned addr, char rw) {
 
-    Add_page(value);
-
-    if (pag == numPaginas)
-		first = first->next;
+    
 }
 
-void NRU(char value[9]) {
-	//Implementar
-}
+void second_chance(unsigned addr, char rw) {
 
-void SecondChance(char value[9]) {
-	//Implementar
-}
+    Page *count = first;
+    bool check = true;
 
-bool Find(char value[9]) {
+    while (count != NULL) {
 
-    Pagina *tmp = first, *prev = NULL;
+        if (count->referenced == 0){
 
-    while (tmp != NULL) {
+            if (count->modified)
+                writebacks++;
 
-        if (strcmp(tmp->address, value)==0) {
-			if (strcmp(tipo, "lru") == 0) {
+            count->address = addr;
+            count->referenced = 1;
 
-                if (prev != NULL) {
-					if (tmp->next != NULL)
-						prev->next = tmp->next;
-				} else
-					first = first->next;
+            if (rw == write)
+                count->modified = 1;
+            else
+                count->modified = 0;
+            return;
+        }
 
-                last->next = tmp;
-				last = tmp;
-				tmp->next = NULL;
-			}
-			return true;
-		}
-		prev = tmp;
-		tmp = tmp->next;
-	}
-	return false;
-}
-
-void Tipo_alg(char value[9]) {
-
-    if (strcmp(tipo, "lru") == 0)
-		LRU(value);
-	else if (strcmp(tipo, "nru") == 0)
-		NRU(value);
-	else if (strcmp(tipo, "sc") == 0)
-		SecondChance(value);
-}
-
-void WriteAddress(char value[9]) {
-
-    if(pag < numPaginas)
-		Add_page(tmpAddress);
-	else
-		Tipo_alg(tmpAddress);
-}
-
-void free_memory(){
-
-    Pagina *tmp = first;
-
-    while (tmp != NULL) {
-        free(tmp);
-        tmp = tmp->next;
+        count = count->next;
     }
 
-    fclose(entrada);
+    if (check) {
+        if (first->modified)
+            writebacks++;
+
+        first->address = addr;
+        first->referenced = 1;
+
+        if (rw == write)
+            first->modified = 1;
+        else
+            first->modified = 0;
+    }
+}
+
+void Random(unsigned addr) {
+
+    // Implementa
+}
+
+bool page_search(unsigned addr) {
+
+    Page *tmp = first;
+
+    while (tmp != NULL) {
+        if (addr == tmp->address) {
+            tmp->referenced = 1;
+            return true;
+        } else
+            tmp = tmp->next;
+    }
+    return false;
+}
+
+void algorithm_selection(unsigned addr, char rw) {
+
+    if (strcmp(algorithm, "lru") == 0)
+		lru(addr, rw);
+    else if (!strcmp(algorithm, "second_chance"))
+        second_chance(addr, rw);
+	else if (strcmp(algorithm, "nru") == 0)
+		Random(addr);
+}
+
+void write_address(unsigned addr, char rw) {
+
+    if (used_pages < n_pages)
+		add_new_page(addr, rw);
+	else {
+		faults++;
+		algorithm_selection(addr, rw);
+	}
+}
+
+void unreference_pages() {
+
+    Page *f = first;
+
+    while (f != NULL) {
+        f->referenced = 0;
+        f = f->next;
+    }
+}
+
+unsigned shift_bits(unsigned addr) {
+
+    unsigned s, size, tmp;
+
+    size = page_size;
+    tmp = size * 1024;
+    s = 0;
+
+    while (tmp > 1) {
+        tmp = tmp >> 1;
+        s++;
+    }
+
+    unsigned page_id;
+    page_id = addr >> s;
+    return page_id;
+}
+
+void FreeMemory() {
+
+    Page *tmp = first;
+
+    while (tmp != NULL){
+		free(tmp);
+		tmp = tmp->next;
+	}
+
+    fclose(file);
 }
 
 int main(int argc, char *argv[]) {
 
-    tipo = argv[1];
-	caminho = argv[2];
-	tam_pag = atoi(argv[3]);
-	tam_mem = atoi(argv[4]);
-	numPaginas = tam_mem/tam_pag;
+    algorithm = argv[1];
+	file_path = argv[2];
+	page_size = atoi(argv[3]);
+	mem_size = atoi(argv[4]);
 
-    // Checa se a entrada foi informada corretamente
-	if (tam_pag < 2 || tam_pag > 64) {
-		printf("O tamanho da página deve estar no intervalo (2, 64), e deve ser potência de 2!\n");
+	if (page_size < 2 || page_size > 64) {
+		printf("O tamanho de cada página deve estar no intervalo (2 e 64)\n");
 		return 0;
 	}
-
-    if (tam_mem < 128 || tam_mem > 16384) {
-        printf("O tamanho da memória deve estar no intervalo (128, 16384), e deve ser potência de 2!\n");
-        return 0;
-    }
-
-	if (!strcmp(tipo, "lru") && !strcmp(tipo, "nru") && !strcmp(tipo, "sc")) {
-        printf("O algoritmo solicitado não está implementado ou foi informado incorretamente!\n");
-        return 0;
-    }
-
-	entrada = fopen(caminho, "r");
-
-    while (fgets(line, 100, entrada) != NULL) {
-
-		strncpy(tmpAddress, line, 8);
-		tmpAddress[8] = '\0';
-
-		if (line[9] == 'W')
-			WriteAddress(tmpAddress);
-		else if (line[9] == 'R') {
-
-			if (Find(tmpAddress))
-				printf("R\n");
-			else
-				WriteAddress(tmpAddress);
-
-            leitura++;
-		} else {
-			printf("Arquivo de entrada");
-			return 0;	
-		}	
+		
+	if (mem_size < 128 || mem_size > 16384) {
+		printf("O tamanho da memória deve estar no intervalo (128, 16384)\n");
+		return 0;
+	}	
+	
+	if (strcmp(algorithm, "lru") && strcmp(algorithm, "second_chance") && strcmp(algorithm, "random")) {
+		printf("O algoritmo informado não existe ou foi informado incorretamente\n\n"
+               "Opções disponíveis: lru, second_chance e nru");
+		return 0;	
 	}
+	
+	n_pages = mem_size/page_size;
+    unsigned end, addr;
+    char rw;
+    int timer = 0;
+		
+	if (strlen(file_path) > 0) {
 
-    // Relatório de execução
-	printf("\nExecutando o simulador...\n");
-	printf("\nTamanho da memoria: %iKB", tam_mem);
-	printf("\nTamanho das paginas: %iKB", tam_pag);
-	printf("\nTecnica de reposicao: %s", tipo);
-	printf("\nPaginas lidas: %i", leitura);
-	printf("\nPaginas escritas: %i\n", escrita);
+		file = fopen(file_path, "r");
 
-    free_memory();
+        while (fscanf(file,"%x %c", &end, &rw) != EOF) {
+
+            // Realiza o deslocamento de bits para
+            addr = shift_bits(end);
+            operations++;
+
+            if (timer == limit) {
+                unreference_pages();
+                timer = 0;
+            }
+            if (rw == read) {
+                if (page_search(addr))
+                    hits++;
+                else {
+                    misses++;
+                    write_address(addr, rw);
+                }
+                reads++;
+            } else if (rw == write) {
+                if (page_search(addr))
+                    hits++;
+                else {
+                    misses++;
+                    write_address(addr, rw);
+                }
+                writes++;
+            } else {
+				printf("O arquivo de entrada não existe ou foi informado incorretamente!\n");
+				return 0;
+			}
+            timer++;
+		}
+	} else {
+		printf("Entrada inválida - Especifique o nome do arquivo .log\n");
+		return 0;
+	}
+    Page *test = first;
+    while (test != NULL) {
+        printf("%x\n", test->address);
+        test = test->next;
+    }
+
+	printf("\nExecutando o simulador de memória virtual...\n\n");
+	printf("Tamanho da memória: %dKB\n", mem_size);
+	printf("Tamanho das páginas: %dKB\n", page_size);
+	printf("Técnica de reposição: %s\n", algorithm);
+	printf("Páginas lidas: %d\n", reads);
+	printf("Páginas escritas: %d\n", writes);
+    printf("Page Faults: %d\n", faults);
+    printf("Writebacks: %d\n", writebacks);
+	/*
+    printf("Hits: %d\n", hits);
+	printf("Misses: %d\n", misses);
+	printf("Taxa de page fault: %f%% \n", (float)faults / operations * 100);
+    */
+	FreeMemory();
 	return 0;
 }
+
