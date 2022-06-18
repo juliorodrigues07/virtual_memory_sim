@@ -1,19 +1,17 @@
-#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
-#include <stdio.h>
+#include <stdbool.h>
 #include <time.h>
 
-typedef struct Pagina {
-	char address[9];
-	struct Pagina *next;	
-} Pagina;
+#define read 'R'
+#define write 'W'
+#define limit 4
 
-void Add_page(char value[9]);
-void LRU(char value[9]);
-void NRU(char value[9]);
-void SecondChance(char value[9]);
-bool Find(char value[9]);
-void Tipo_alg(char value[9]);
-void WriteAddress(char value[9]);
+typedef struct Page {
+    int address;
+    int modified;
+    int referenced;
+    struct Page *next;
+} Page;
+
