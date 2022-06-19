@@ -7,11 +7,24 @@
 # Compilação
         make
 
-# Execução (Para instância matriz.log)
+# Requisitos (Plot dos gráficos)
+- [Python](https://python.org) 3.8 ou superior
+- Biblioteca [Matplotlib](https://matplotlib.org/)
 
-        make run
+       pip install matplotlib
+       
+# Execução
 
-Link - Relatório (Overleaf):
+- Para instância matriz.log:
+        
+       make run
+       
+- Formato de execução geral:
 
-    https://www.overleaf.com/4379931644ydkwtzsjkfss
+       gcc main.c -o tp2virtual
+       
+       ./tp2virtual <nome do algoritmo> ../Instances/<nome do arquivo.log> <tamanho da página> <tamanho da memória>
+       
+- Exemplo de execução:
 
+       ./tp2virtual nru ../Instances/simulador.log 4 2048
