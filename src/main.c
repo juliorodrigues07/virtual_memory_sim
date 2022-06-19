@@ -13,6 +13,7 @@ void add_new_page(unsigned addr, char rw) {
 	Page *current = (Page *)malloc(sizeof(Page));
 	current->address = addr;
     current->referenced = 1;
+    current->usage = start;
 	current->next = NULL;
 
     if (rw == write)
@@ -34,7 +35,29 @@ void add_new_page(unsigned addr, char rw) {
 
 void lru(unsigned addr, char rw) {
 
-    
+    Page *tmp = first;
+    unsigned value = INF;
+    Page *last_use;
+
+    while (tmp != NULL) {
+        if (tmp->referenced < value) {
+            value = tmp->referenced;
+            last_use = tmp;
+        }
+        tmp = tmp->next;
+    }
+
+    if (last_use->modified)
+        writebacks++;
+
+    last_use->address = addr;
+    last_use->referenced = 1;
+    last_use->usage = start;
+
+    if (rw == write)
+        last_use->modified = 1;
+    else
+        last_use->modified = 0;
 }
 
 void second_chance(unsigned addr, char rw) {
@@ -51,6 +74,7 @@ void second_chance(unsigned addr, char rw) {
 
             count->address = addr;
             count->referenced = 1;
+            count->usage = start;
 
             if (rw == write)
                 count->modified = 1;
@@ -68,6 +92,7 @@ void second_chance(unsigned addr, char rw) {
 
         first->address = addr;
         first->referenced = 1;
+        first->usage = start;
 
         if (rw == write)
             first->modified = 1;
@@ -76,22 +101,26 @@ void second_chance(unsigned addr, char rw) {
     }
 }
 
-void Random(unsigned addr) {
+void nru(unsigned addr, char rw) {
 
-    // Implementa
+    Page *tmp = first;
 }
 
 bool page_search(unsigned addr) {
 
     Page *tmp = first;
+    int s;
 
     while (tmp != NULL) {
         if (addr == tmp->address) {
-            tmp->referenced = 1;
+            s = tmp->usage;
+            tmp->usage = s << 1;
+            printf("%d\n", tmp->usage);
             return true;
         } else
             tmp = tmp->next;
     }
+
     return false;
 }
 
@@ -102,7 +131,7 @@ void algorithm_selection(unsigned addr, char rw) {
     else if (!strcmp(algorithm, "second_chance"))
         second_chance(addr, rw);
 	else if (strcmp(algorithm, "nru") == 0)
-		Random(addr);
+		nru(addr, rw);
 }
 
 void write_address(unsigned addr, char rw) {
@@ -118,9 +147,12 @@ void write_address(unsigned addr, char rw) {
 void unreference_pages() {
 
     Page *f = first;
+    int s;
 
     while (f != NULL) {
         f->referenced = 0;
+        s = f->usage;
+        f->usage = s >> 1;
         f = f->next;
     }
 }
@@ -172,7 +204,7 @@ int main(int argc, char *argv[]) {
 		return 0;
 	}	
 	
-	if (strcmp(algorithm, "lru") && strcmp(algorithm, "second_chance") && strcmp(algorithm, "random")) {
+	if (strcmp(algorithm, "lru") && strcmp(algorithm, "second_chance") && strcmp(algorithm, "nru")) {
 		printf("O algoritmo informado não existe ou foi informado incorretamente\n\n"
                "Opções disponíveis: lru, second_chance e nru");
 		return 0;	
@@ -223,11 +255,6 @@ int main(int argc, char *argv[]) {
 		printf("Entrada inválida - Especifique o nome do arquivo .log\n");
 		return 0;
 	}
-    Page *test = first;
-    while (test != NULL) {
-        printf("%x\n", test->address);
-        test = test->next;
-    }
 
 	printf("\nExecutando o simulador de memória virtual...\n\n");
 	printf("Tamanho da memória: %dKB\n", mem_size);
