@@ -1,5 +1,6 @@
 #include "utilities.h"
 
+// Parâmetros do programa
 char *algorithm, *file_path;
 int page_size, mem_size, n_pages, used_pages=0;
 
@@ -33,6 +34,21 @@ void add_new_page(unsigned addr, char rw) {
 		used_pages++;
 }
 
+void fill_info(Page *p, unsigned addr, char rw) {
+
+    if (p->modified)
+        writebacks++;
+
+    p->address = addr;
+    p->referenced = 1;
+    p->usage = start;
+
+    if (rw == write)
+        p->modified = 1;
+    else
+        p->modified = 0;
+}
+
 void lru(unsigned addr, char rw) {
 
     Page *tmp = first;
@@ -47,63 +63,59 @@ void lru(unsigned addr, char rw) {
         tmp = tmp->next;
     }
 
-    if (last_use->modified)
-        writebacks++;
-
-    last_use->address = addr;
-    last_use->referenced = 1;
-    last_use->usage = start;
-
-    if (rw == write)
-        last_use->modified = 1;
-    else
-        last_use->modified = 0;
+    fill_info(last_use, addr, rw);
 }
 
 void second_chance(unsigned addr, char rw) {
 
-    Page *count = first;
+    Page *tmp = first;
     bool check = true;
 
-    while (count != NULL) {
+    while (tmp != NULL) {
 
-        if (count->referenced == 0){
-
-            if (count->modified)
-                writebacks++;
-
-            count->address = addr;
-            count->referenced = 1;
-            count->usage = start;
-
-            if (rw == write)
-                count->modified = 1;
-            else
-                count->modified = 0;
+        if (tmp->referenced == 0){
+            fill_info(tmp, addr, rw);
             return;
         }
-
-        count = count->next;
+        tmp = tmp->next;
     }
 
-    if (check) {
-        if (first->modified)
-            writebacks++;
-
-        first->address = addr;
-        first->referenced = 1;
-        first->usage = start;
-
-        if (rw == write)
-            first->modified = 1;
-        else
-            first->modified = 0;
-    }
+    if (check)
+        fill_info(first, addr, rw);
 }
 
 void nru(unsigned addr, char rw) {
 
     Page *tmp = first;
+    bool c0 = false, c1 = false, c2 = false;
+    Page *count0, *count1, *count2, *count3;
+
+    while (tmp != NULL) {
+
+        if (tmp->referenced + tmp->modified == 0) {
+            c0 = true;
+            count0 = tmp;
+            break;
+        } else if (tmp->referenced > tmp->modified) {
+            c1 = true;
+            count1 = tmp;
+        } else if (tmp->referenced < tmp->modified) {
+            c2 = true;
+            count2 = tmp;
+        } else {
+            count3 = tmp;
+        }
+        tmp = tmp->next;
+    }
+
+    if (c0)
+        fill_info(count0, addr, rw);
+    else if (c1)
+        fill_info(count1, addr, rw);
+    else if (c2)
+        fill_info(count2, addr, rw);
+    else
+        fill_info(count3, addr, rw);
 }
 
 bool page_search(unsigned addr) {
@@ -115,7 +127,6 @@ bool page_search(unsigned addr) {
         if (addr == tmp->address) {
             s = tmp->usage;
             tmp->usage = s << 1;
-            printf("%d\n", tmp->usage);
             return true;
         } else
             tmp = tmp->next;
@@ -126,6 +137,7 @@ bool page_search(unsigned addr) {
 
 void algorithm_selection(unsigned addr, char rw) {
 
+    // Chamadas dos algoritmos
     if (strcmp(algorithm, "lru") == 0)
 		lru(addr, rw);
     else if (!strcmp(algorithm, "second_chance"))
@@ -136,6 +148,7 @@ void algorithm_selection(unsigned addr, char rw) {
 
 void write_address(unsigned addr, char rw) {
 
+    // Cria uma nova página se existe memória disponível, caso contrário aplica o algoritmo escolhido para substituição
     if (used_pages < n_pages)
 		add_new_page(addr, rw);
 	else {
@@ -221,7 +234,7 @@ int main(int argc, char *argv[]) {
 
         while (fscanf(file,"%x %c", &end, &rw) != EOF) {
 
-            // Realiza o deslocamento de bits para
+            // Realiza o deslocamento de bits para encontrar o "id" da página
             addr = shift_bits(end);
             operations++;
 
@@ -257,6 +270,7 @@ int main(int argc, char *argv[]) {
 	}
 
 	printf("\nExecutando o simulador de memória virtual...\n\n");
+    printf("Arquivo de entrada: %s\n", file_path);
 	printf("Tamanho da memória: %dKB\n", mem_size);
 	printf("Tamanho das páginas: %dKB\n", page_size);
 	printf("Técnica de reposição: %s\n", algorithm);
