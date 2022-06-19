@@ -7,7 +7,7 @@
 # Compilação
         make
 
-# Execução (Para arquivo teste.log)
+# Execução (Para instância matriz.log)
 
         make run
 
