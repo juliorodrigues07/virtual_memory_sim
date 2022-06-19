@@ -201,7 +201,8 @@ void FreeMemory() {
 }
 
 int main(int argc, char *argv[]) {
-
+    clock_t t; //variável para armazenar tempo
+    t = clock(); //armazena tempo
     algorithm = argv[1];
 	file_path = argv[2];
 	page_size = atoi(argv[3]);
@@ -213,7 +214,7 @@ int main(int argc, char *argv[]) {
 	}
 		
 	if (mem_size < 128 || mem_size > 16384) {
-		printf("O tamanho da memória deve estar no intervalo (128, 16384)\n");
+		printf("O tamanho da memoria deve estar no intervalo (128, 16384)\n");
 		return 0;
 	}	
 	
@@ -268,6 +269,7 @@ int main(int argc, char *argv[]) {
 		printf("Entrada inválida - Especifique o nome do arquivo .log\n");
 		return 0;
 	}
+    
 
 	printf("\nExecutando o simulador de memória virtual...\n\n");
     printf("Arquivo de entrada: %s\n", file_path);
@@ -278,6 +280,8 @@ int main(int argc, char *argv[]) {
 	printf("Páginas escritas: %d\n", writes);
     printf("Page Faults: %d\n", faults);
     printf("Writebacks: %d\n", writebacks);
+    t = clock() - t; //tempo final - tempo inicial
+    printf("Tempo de execucao: %lf", ((double)t)/((CLOCKS_PER_SEC)));
 	/*
     printf("Hits: %d\n", hits);
 	printf("Misses: %d\n", misses);
