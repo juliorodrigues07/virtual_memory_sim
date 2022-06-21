@@ -1,8 +1,8 @@
-all: main.o
-	gcc main.o -o tp2virtual
+all: virtual_mem_sim.o
+	gcc virtual_mem_sim.o main.c -o tp2virtual
 
-main.o: utilities.h 
-	gcc -c main.c
+virtual_mem_sim.o: utilities.h 
+	gcc -c virtual_mem_sim.c
 
 clean:
 	rm -rf *.o
