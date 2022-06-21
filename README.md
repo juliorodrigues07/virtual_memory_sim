@@ -8,7 +8,7 @@
         make
 
 # Requisitos (Plot dos gráficos)
-- [Python](https://python.org) 3.8 ou superior `python3 main.py`
+- [Python](https://python.org) 3.8 ou superior
 - Biblioteca [Matplotlib](https://matplotlib.org/)
 
        pip install matplotlib
