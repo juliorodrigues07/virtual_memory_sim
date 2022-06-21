@@ -15,8 +15,7 @@ def plot_graph(x, page_fault, write_backs):
 def plot_page_faults(mem, x, y, z):
 
     plt.grid()
-    plt.xlabel('Tamanho da memória principal')
-    plt.ylabel('Quantidade de páginas')
+    plt.ylabel('Faltas de Páginas')
     plt.plot(mem, x, color='b', label='LRU')
     plt.plot(mem, y, color='g', label='Segunda Chance')
     plt.plot(mem, z, color='r', label='NRU')
@@ -27,10 +26,17 @@ def plot_page_faults(mem, x, y, z):
 def plot_writebacks(mem, a, b, c):
 
     plt.grid()
-    plt.xlabel('Tamanho da memória principal')
-    plt.ylabel('Quantidade de páginas')
+    plt.ylabel('Páginas Sujas')
     plt.plot(mem, a, color='b', label='LRU')
     plt.plot(mem, b, color='g', label='Segunda Chance')
     plt.plot(mem, c, color='r', label='NRU')
     plt.legend(loc='best')
     plt.show()
+
+
+def mem_label():
+    plt.xlabel('Tamanho da memória principal')
+
+
+def pag_label():
+    plt.xlabel('Tamanho de página')

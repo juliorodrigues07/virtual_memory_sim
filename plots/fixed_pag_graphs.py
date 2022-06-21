@@ -1,5 +1,6 @@
 from plotting import plot_page_faults
 from plotting import plot_writebacks
+from plotting import mem_label
 import matplotlib.pyplot as plt
 
 
@@ -17,10 +18,12 @@ def main():
     z = [576456, 536520, 495942, 438335, 307452, 99159, 1077, 0]
     c = [13071, 4005, 2011, 1506, 889, 171, 0, 0]
 
-    plt.title('Faltas de Página - Tamanho de página fixo (4 KB) - matriz.log')
+    mem_label()
+    plt.title('Tamanho de página fixo (4 KB) - matriz.log')
     plot_page_faults(mem, x, y, z)
 
-    plt.title('Páginas Sujas - Tamanho de página fixo (4 KB) - matriz.log')
+    mem_label()
+    plt.title('Tamanho de página fixo (4 KB) - matriz.log')
     plot_writebacks(mem, a, b, c)
 
     # COMPILADOR.LOG
@@ -33,10 +36,12 @@ def main():
     z = [326348, 252460, 223183, 206145, 192634, 42430, 1940, 0]
     c = [21411, 6519, 3423, 2615, 1681, 141, 0, 0]
 
-    plt.title('Faltas de Página - Tamanho de página fixo (4 KB) - compilador.log')
+    mem_label()
+    plt.title('Tamanho de página fixo (4 KB) - compilador.log')
     plot_page_faults(mem, x, y, z)
 
-    plt.title('Páginas Sujas - Tamanho de página fixo (4 KB) - compilador.log')
+    mem_label()
+    plt.title('Tamanho de página fixo (4 KB) - compilador.log')
     plot_writebacks(mem, a, b, c)
 
     # COMPRESSOR.LOG
@@ -49,10 +54,12 @@ def main():
     z = [118596, 108821, 58187, 198, 0, 0, 0, 0]
     c = [1532, 487, 165, 0, 0, 0, 0, 0]
 
-    plt.title('Faltas de Página - Tamanho de página fixo (4 KB) - compressor.log')
+    mem_label()
+    plt.title('Tamanho de página fixo (4 KB) - compressor.log')
     plot_page_faults(mem, x, y, z)
 
-    plt.title('Páginas Sujas - Tamanho de página fixo (4 KB) - compressor.log')
+    mem_label()
+    plt.title('Tamanho de página fixo (4 KB) - compressor.log')
     plot_writebacks(mem, a, b, c)
 
     # SIMULADOR.LOG
@@ -65,10 +72,12 @@ def main():
     z = [405118, 331910, 278928, 276668, 268697, 242960, 14682, 0]
     c = [50149, 26298, 5015, 4019, 3257, 1411, 18, 0]
 
-    plt.title('Faltas de Página - Tamanho de página fixo (4 KB) - simulador.log')
+    mem_label()
+    plt.title('Tamanho de página fixo (4 KB) - simulador.log')
     plot_page_faults(mem, x, y, z)
 
-    plt.title('Páginas Sujas - Tamanho de página fixo (4 KB) - simulador.log')
+    mem_label()
+    plt.title('Tamanho de página fixo (4 KB) - simulador.log')
     plot_writebacks(mem, a, b, c)
 
 
