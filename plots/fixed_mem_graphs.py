@@ -1,15 +1,6 @@
+from plotting import plot_page_faults
+from plotting import plot_writebacks
 import matplotlib.pyplot as plt
-
-
-def plot_graph(x, page_fault, write_backs):
-
-    plt.grid()
-    plt.xlabel('Tamanho da página')
-    plt.ylabel('Quantidade de páginas')
-    plt.plot(x, page_fault, color='b', label='Falta de Páginas')
-    plt.plot(x, write_backs, color='g', label='Páginas "Sujas"')
-    plt.legend(loc='best')
-    plt.show()
 
 
 def main():
@@ -17,58 +8,62 @@ def main():
     pag = [2, 4, 8, 16, 32, 64]
 
     # MATRIZ.LOG
-    plt.title('LRU - Tamanho da memória fixo (16384 KB) - matriz.log')
-    page_fault = [0, 0, 609, 3084, 4884, 5360]
-    write_backs = [0, 0, 181, 779, 1128, 1159]
-    plot_graph(pag, page_fault, write_backs)
+    x = [0, 0, 234, 1992, 2887, 3272]
+    a = [0, 0, 108, 738, 1056, 1135]
 
-    plt.title('Segunda Chance - Tamanho da memória fixo (16384 KB) - matriz.log')
-    plot_graph(pag, page_fault, write_backs)
+    y = [0, 0, 282, 1291, 1983, 2946]
+    b = [0, 0, 141, 641, 885, 1168]
 
-    plt.title('NRU - Tamanho da memória fixo (16384 KB) - matriz.log')
-    page_fault = [0, 0, 747, 3364, 185521, 303850]
-    write_backs = [0, 0, 0, 0, 400, 832]
-    plot_graph(pag, page_fault, write_backs)
+    z = [0, 0, 320, 1847, 197593, 312677]
+    c = [0, 0, 0, 0, 361, 615]
+
+    plt.title('Faltas de Página - Tamanho da memória fixo (16384 KB) - matriz.log')
+    plot_page_faults(pag, x, y, z)
+
+    plt.title('Páginas Sujas - Tamanho da memória fixo (16384 KB) - matriz.log')
+    plot_writebacks(pag, a, b, c)
 
     # COMPILADOR.LOG
-    plt.title('LRU - Tamanho da memória fixo (16384 KB) - compilador.log')
-    page_fault = [0, 0, 505, 3084, 7983, 12070]
-    write_backs = [0, 0, 130, 515, 873, 1308]
-    plot_graph(pag, page_fault, write_backs)
+    x = [0, 0, 434, 2557, 5396, 7537]
+    a = [0, 0, 178, 613, 967, 1443]
 
-    plt.title('Segunda Chance - Tamanho da memória fixo (16384 KB) - compilador.log')
-    plot_graph(pag, page_fault, write_backs)
+    y = [0, 0, 450, 2198, 4705, 9559]
+    b = [0, 0, 400, 898, 1477, 2482]
 
-    plt.title('NRU - Tamanho da memória fixo (16384 KB) - compilador.log')
-    page_fault = [0, 0, 756, 5821, 94157, 99665]
-    write_backs = [0, 0, 0, 0, 323, 1327]
-    plot_graph(pag, page_fault, write_backs)
+    z = [0, 0, 623, 3785, 100277, 91484]
+    c = [0, 0, 0, 0, 282, 930]
+
+    plt.title('Faltas de Página - Tamanho da memória fixo (16384 KB) - compilador.log')
+    plot_page_faults(pag, x, y, z)
+
+    plt.title('Páginas Sujas - Tamanho da memória fixo (16384 KB) - compilador.log')
+    plot_writebacks(pag, a, b, c)
 
     # COMPRESSOR.LOG
-    plt.title('LRU - Tamanho da memória fixo (16384 KB) - compressor.log')
-    page_fault = [0, 0, 0, 0, 0, 0]
-    write_backs = [0, 0, 0, 0, 0, 0]
-    plot_graph(pag, page_fault, write_backs)
+    x = [0, 0, 0, 0, 0, 0]
+    a = [0, 0, 0, 0, 0, 0]
 
-    plt.title('Segunda Chance - Tamanho da memória fixo (16384 KB) - compressor.log')
-    plot_graph(pag, page_fault, write_backs)
+    plt.title('Faltas de Página - Tamanho da memória fixo (16384 KB) - compressor.log')
+    plot_page_faults(pag, x, x, x)
 
-    plt.title('NRU - Tamanho da memória fixo (16384 KB) - compressor.log')
-    plot_graph(pag, page_fault, write_backs)
+    plt.title('Páginas Sujas - Tamanho da memória fixo (16384 KB) - compressor.log')
+    plot_writebacks(pag, a, a, a)
 
     # SIMULADOR.LOG
-    plt.title('LRU - Tamanho da memória fixo (16384 KB) - simulador.log')
-    page_fault = [0, 0, 4190, 6008, 8410, 8587]
-    write_backs = [0, 0, 628, 1599, 2333, 2293]
-    plot_graph(pag, page_fault, write_backs)
+    x = [0, 0, 2582, 3737, 5903, 5957]
+    a = [0, 0, 591, 1422, 2315, 2322]
 
-    plt.title('Segunda Chance - Tamanho da memória fixo (16384 KB) - simulador.log')
-    plot_graph(pag, page_fault, write_backs)
+    y = [0, 0, 1162, 2772, 3366, 3652]
+    b = [0, 0, 1161, 1697, 1877, 1884]
 
-    plt.title('NRU - Tamanho da memória fixo (16384 KB) - simulador.log')
-    page_fault = [0, 0, 4980, 227194, 190333, 173179]
-    write_backs = [0, 0, 0, 895, 1734, 2479]
-    plot_graph(pag, page_fault, write_backs)
+    z = [0, 0, 3003, 220521, 169381, 157653]
+    c = [0, 0, 0, 810, 1500, 1997]
+
+    plt.title('Faltas de Página - Tamanho da memória fixo (16384 KB) - simulador.log')
+    plot_page_faults(pag, x, y, z)
+
+    plt.title('Páginas Sujas - Tamanho da memória fixo (16384 KB) - simulador.log')
+    plot_writebacks(pag, a, b, c)
 
 
 if __name__ == '__main__':
