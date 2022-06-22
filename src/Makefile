@@ -8,4 +8,4 @@ clean:
 	rm -rf *.o
 
 run:
-	./tp2virtual lru ../Instances/matriz.log 8 16384
+	./tp2virtual lru ../Instances/matriz.log 8 8192

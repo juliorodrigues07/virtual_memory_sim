@@ -4,10 +4,10 @@ int main(int argc, char *argv[]) {
 
     // Parâmetros do programa
     char *algorithm, *file_path;
-    int page_size, mem_size, n_pages, used_pages=0;
+    int page_size, mem_size, n_pages, used_pages = 0;
 
     // Métricas para relatório
-    int faults = 0, operations=0, reads=0, writes=0, hits=0, misses=0, writebacks=0;
+    int faults = 0, operations = 0, reads = 0, writes = 0, hits = 0, misses = 0, writebacks = 0;
     FILE *file;
 
     algorithm = argv[1];
@@ -81,6 +81,7 @@ int main(int argc, char *argv[]) {
     }
 
     exec_time = clock() - t;
+    float fault_tax = (float)faults / operations * 100;
 
     // Exibe o relatório de execução
     printf("\nExecutando o simulador de memória virtual...\n\n");
@@ -91,14 +92,11 @@ int main(int argc, char *argv[]) {
     printf("Páginas lidas: \t\t %d \n", reads);
     printf("Páginas escritas: \t %d \n", writes);
     printf("Page Faults: \t\t %d \n", faults);
-    printf("Writebacks: \t\t %d \n\n", writebacks);
-
-    /*
-    printf("Hits: %d\n", hits);
-    printf("Misses: %d\n", misses);
-    printf("Taxa de page fault: %f%% \n", (float)faults / operations * 100);
-    printf("\nTempo de execução: \t %lfs \n", ((double)exec_time)/((CLOCKS_PER_SEC)));
-    */
+    printf("Writebacks: \t\t %d \n", writebacks);
+    printf("Hits: \t\t\t %d \n", hits);
+    printf("Misses: \t\t %d \n", misses);
+    printf("Taxa de page fault: \t %f%% \n", fault_tax);
+    printf("\nTempo de execução: \t %lfs \n\n", ((double)exec_time)/((CLOCKS_PER_SEC)));
 
     free_memory(file);
     return 0;
