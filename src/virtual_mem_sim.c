@@ -110,10 +110,10 @@ void nru(unsigned id, char rw, int *writebacks) {
             c0 = true;
             page_0 = tmp;
             break;
-        } else if (tmp->referenced > tmp->modified) {
+        } else if (tmp->referenced < tmp->modified) {
             c1 = true;
             page_1 = tmp;
-        } else if (tmp->referenced < tmp->modified) {
+        } else if (tmp->referenced > tmp->modified) {
             c2 = true;
             page_2 = tmp;
         } else
@@ -170,9 +170,10 @@ void algorithm_selection(char *algorithm, unsigned id, char rw, int *writebacks)
 void write_address(char *algorithm, unsigned id, char rw, int *used_pages, int n_pages, int *faults, int *writebacks) {
 
     // Cria uma página se existe memória disponível, caso contrário aplica o algoritmo escolhido para substituição
-    if (*used_pages < n_pages)
+    if (*used_pages < n_pages) {
+        (*faults)++;
         add_new_page(id, rw, used_pages, n_pages);
-    else {
+    } else {
         (*faults)++;
         algorithm_selection(algorithm, id, rw, writebacks);
     }
